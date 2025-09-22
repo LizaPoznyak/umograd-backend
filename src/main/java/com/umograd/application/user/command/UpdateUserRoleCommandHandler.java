@@ -6,8 +6,6 @@ import com.umograd.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
-
 @Service
 @RequiredArgsConstructor
 public class UpdateUserRoleCommandHandler {
@@ -26,7 +24,10 @@ public class UpdateUserRoleCommandHandler {
             throw new RuntimeException("Нельзя понизить роль единственного модератора");
         }
 
-        user.setRoles(Set.of(command.newRole()));
+        // ✅ вместо Set.of(...) — очищаем и добавляем новую роль
+        user.getRoles().clear();
+        user.getRoles().add(command.newRole());
+
         return userRepository.save(user);
     }
 }

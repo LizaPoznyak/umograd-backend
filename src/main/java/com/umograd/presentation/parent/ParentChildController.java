@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/parent/children")
+@RequestMapping("/api/v1/parent/children")
 @RequiredArgsConstructor
 public class ParentChildController {
 

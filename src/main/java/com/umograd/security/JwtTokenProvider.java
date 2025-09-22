@@ -4,47 +4,61 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 @Component
 public class JwtTokenProvider {
 
-    // Секретный ключ (для продакшена — хранить в переменных окружения!)
-    private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final Key secretKey;
 
-    // Время жизни токенов (миллисекунды)
     private final long accessTokenValidity = 1000 * 60 * 15; // 15 минут
     private final long refreshTokenValidity = 1000L * 60 * 60 * 24 * 7; // 7 дней
 
-    // Генерация access токена
+    public JwtTokenProvider(@Value("${jwt.secret}") String secret) {
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
     public String generateAccessToken(UserDetails userDetails) {
-        return createToken(new HashMap<>(), userDetails.getUsername(), accessTokenValidity);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", userDetails.getAuthorities()
+                .stream()
+                .map(a -> a.getAuthority())
+                .toList());
+        return createToken(claims, userDetails.getUsername(), accessTokenValidity);
     }
 
-    // Генерация refresh токена
     public String generateRefreshToken(UserDetails userDetails) {
-        return createToken(new HashMap<>(), userDetails.getUsername(), refreshTokenValidity);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", userDetails.getAuthorities()
+                .stream()
+                .map(a -> a.getAuthority())
+                .toList());
+        return createToken(claims, userDetails.getUsername(), refreshTokenValidity);
     }
 
-    // Извлечение имени пользователя из токена
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // Проверка валидности токена
+    public List<String> extractRoles(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("roles", List.class);
+    }
+
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
-
-    // ================= Вспомогательные методы =================
 
     private String createToken(Map<String, Object> claims, String subject, long validity) {
         Date now = new Date();
@@ -55,7 +69,7 @@ public class JwtTokenProvider {
                 .setSubject(subject)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(secretKey)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 

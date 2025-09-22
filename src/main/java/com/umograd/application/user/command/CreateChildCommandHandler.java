@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Service
@@ -24,7 +25,7 @@ public class CreateChildCommandHandler {
                 .username(command.username())
                 .email(command.email())
                 .password(passwordEncoder.encode(command.password()))
-                .roles(Set.of(Role.ROLE_CHILD))
+                .roles(new HashSet<>(Set.of(Role.ROLE_CHILD))) // ✅ изменяемая коллекция
                 .parent(parent)
                 .build();
 
