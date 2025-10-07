@@ -3,6 +3,7 @@ package com.umograd.content.infrastructure.persistence.jpa;
 import com.umograd.content.domain.task.Difficulty;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,8 +14,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class TaskJpaEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    // --- новое поле для внешнего идентификатора ---
+    @Column(name = "source_id")
+    private String sourceId;
 
     private String title;
     private String description;
@@ -27,4 +34,13 @@ public class TaskJpaEntity {
 
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
+
+    // --- поля для TaskContent ---
+    private String contentType;   // например: "MULTIPLE_CHOICE", "TEXT", "IMAGE"
+    private String question;
+
+    @Lob
+    private String options;       // JSON‑строка со списком вариантов
+
+    private String answer;
 }

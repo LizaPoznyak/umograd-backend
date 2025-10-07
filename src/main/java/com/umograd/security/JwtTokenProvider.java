@@ -28,31 +28,37 @@ public class JwtTokenProvider {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(UserDetails userDetails) {
+    public String generateAccessToken(Long userId, String username, UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("username", username);
         claims.put("roles", userDetails.getAuthorities()
                 .stream()
                 .map(a -> a.getAuthority())
                 .toList());
-        return createToken(claims, userDetails.getUsername(), accessTokenValidity);
+        return createToken(claims, userId.toString(), accessTokenValidity);
     }
 
-    public String generateRefreshToken(UserDetails userDetails) {
+    public String generateRefreshToken(Long userId, String username, UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("username", username);
         claims.put("roles", userDetails.getAuthorities()
                 .stream()
                 .map(a -> a.getAuthority())
                 .toList());
-        return createToken(claims, userDetails.getUsername(), refreshTokenValidity);
+
+        return createToken(claims, userId.toString(), refreshTokenValidity);
     }
 
-    public String extractUsername(String token) {
+    public String extractSubject(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public String extractUsername(String token) {
+        return extractAllClaims(token).get("username", String.class);
+    }
+
     public List<String> extractRoles(String token) {
-        Claims claims = extractAllClaims(token);
-        return claims.get("roles", List.class);
+        return extractAllClaims(token).get("roles", List.class);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

@@ -7,6 +7,7 @@ import com.umograd.content.domain.result.TaskResultRepository;
 import java.time.LocalDateTime;
 
 public class FinishTaskHandler {
+
     private final TaskResultRepository repository;
 
     public FinishTaskHandler(TaskResultRepository repository) {
@@ -19,6 +20,14 @@ public class FinishTaskHandler {
 
         if (!result.childId().equals(cmd.childId())) {
             throw new SecurityException("Child cannot finish someone else's task");
+        }
+
+        // Опционально: сохраняем attempts в домене (если есть соответствующее поле)
+        // result.setAttempts(cmd.attempts());
+
+        // Дополнительно: guard для нуля (на случай, если контроллер не проверил)
+        if (cmd.score() != null && cmd.score() == 0 && !cmd.allowZero()) {
+            throw new IllegalArgumentException("Finishing with zero is not allowed without confirmation");
         }
 
         result.markFinished(cmd.score(), LocalDateTime.now());

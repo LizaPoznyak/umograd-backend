@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
-    private final TaskId id;
+    private final TaskId id;          // внутренний ID (из БД)
+    private final String sourceId;    // внешний ID (например, "opentdb-19-12345")
+
     private TaskTitle title;
     private TaskDescription description;
     private final String createdBy;
@@ -13,11 +15,20 @@ public class Task {
 
     private AgeRange ageRange;
     private Difficulty difficulty;
+    private TaskContent content;
 
-    public Task(TaskId id, TaskTitle title, TaskDescription description,
-                String createdBy, LocalDateTime createdAt, LocalDateTime updatedAt,
-                AgeRange ageRange, Difficulty difficulty) {
+    private Task(TaskId id,
+                 String sourceId,
+                 TaskTitle title,
+                 TaskDescription description,
+                 String createdBy,
+                 LocalDateTime createdAt,
+                 LocalDateTime updatedAt,
+                 AgeRange ageRange,
+                 Difficulty difficulty,
+                 TaskContent content) {
         this.id = id;
+        this.sourceId = sourceId;
         this.title = Objects.requireNonNull(title);
         this.description = Objects.requireNonNull(description);
         this.createdBy = Objects.requireNonNull(createdBy);
@@ -25,12 +36,19 @@ public class Task {
         this.updatedAt = updatedAt;
         this.ageRange = Objects.requireNonNull(ageRange);
         this.difficulty = Objects.requireNonNull(difficulty);
+        this.content = Objects.requireNonNull(content);
     }
 
-    public static Task createNew(TaskId id, TaskTitle title, TaskDescription description,
-                                 String createdBy, LocalDateTime now,
-                                 AgeRange ageRange, Difficulty difficulty) {
-        return new Task(id, title, description, createdBy, now, null, ageRange, difficulty);
+    public static Task createNew(TaskId id,
+                                 String sourceId,
+                                 TaskTitle title,
+                                 TaskDescription description,
+                                 String createdBy,
+                                 LocalDateTime now,
+                                 AgeRange ageRange,
+                                 Difficulty difficulty,
+                                 TaskContent content) {
+        return new Task(id, sourceId, title, description, createdBy, now, null, ageRange, difficulty, content);
     }
 
     // --- Методы поведения ---
@@ -50,8 +68,14 @@ public class Task {
         this.updatedAt = now;
     }
 
+    public void updateContent(TaskContent newContent, LocalDateTime now) {
+        this.content = Objects.requireNonNull(newContent);
+        this.updatedAt = now;
+    }
+
     // --- Геттеры ---
     public TaskId id() { return id; }
+    public String sourceId() { return sourceId; }
     public TaskTitle title() { return title; }
     public TaskDescription description() { return description; }
     public String createdBy() { return createdBy; }
@@ -59,4 +83,5 @@ public class Task {
     public LocalDateTime updatedAt() { return updatedAt; }
     public AgeRange ageRange() { return ageRange; }
     public Difficulty difficulty() { return difficulty; }
+    public TaskContent content() { return content; }
 }

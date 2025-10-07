@@ -37,9 +37,16 @@ public class TaskResultController {
     @PreAuthorize("hasRole('CHILD')")
     public TaskResultDto finish(@PathVariable Long taskResultId,
                                 @RequestParam(required = false) Integer score,
+                                @RequestParam(required = false, defaultValue = "0") Integer attempts,
+                                @RequestParam(required = false, defaultValue = "false") boolean allowZero,
                                 Authentication auth) {
         Long childId = Long.valueOf(auth.getName());
-        return finishHandler.handle(new FinishTaskCommand(taskResultId, score, childId));
+
+        if (score != null && score == 0 && !allowZero) {
+            throw new IllegalArgumentException("Finishing with zero is not allowed without confirmation");
+        }
+
+        return finishHandler.handle(new FinishTaskCommand(taskResultId, score, attempts, allowZero, childId));
     }
 
     @GetMapping("/children/{childId}")

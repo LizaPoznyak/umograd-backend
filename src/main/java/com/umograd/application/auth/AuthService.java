@@ -51,7 +51,7 @@ public class AuthService {
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .roles(new HashSet<>(Set.of(role))) // ✅ изменяемая коллекция
+                .roles(new HashSet<>(Set.of(role)))
                 .build();
 
         userRepository.save(user);
@@ -79,17 +79,32 @@ public class AuthService {
             throw new RuntimeException("Невалидный refresh токен");
         }
 
-        String newAccessToken = jwtTokenProvider.generateAccessToken(toUserDetails(user));
-        return new AuthResponse(newAccessToken, refreshToken);
+        String newAccessToken = jwtTokenProvider.generateAccessToken(
+                user.getId(),
+                user.getUsername(),
+                toUserDetails(user)
+        );
+        return new AuthResponse(newAccessToken, refreshToken, user.getId());
     }
 
     // ===================== Вспомогательные методы =====================
 
     private AuthResponse generateTokens(User user) {
         UserDetails userDetails = toUserDetails(user);
-        String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
-        return new AuthResponse(accessToken, refreshToken);
+
+        String accessToken = jwtTokenProvider.generateAccessToken(
+                user.getId(),
+                user.getUsername(),
+                userDetails
+        );
+
+        String refreshToken = jwtTokenProvider.generateRefreshToken(
+                user.getId(),
+                user.getUsername(),
+                userDetails
+        );
+
+        return new AuthResponse(accessToken, refreshToken, user.getId());
     }
 
     private UserDetails toUserDetails(User user) {

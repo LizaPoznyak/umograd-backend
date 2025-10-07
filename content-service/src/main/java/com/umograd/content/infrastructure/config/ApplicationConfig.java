@@ -4,12 +4,16 @@ import com.umograd.content.application.result.command.FinishTaskHandler;
 import com.umograd.content.application.result.command.StartTaskHandler;
 import com.umograd.content.application.result.query.GetChildResultsHandler;
 import com.umograd.content.application.task.command.CreateTaskHandler;
+import com.umograd.content.application.task.command.ImportTasksHandler;
 import com.umograd.content.application.task.query.ListTasksForChildHandler;
 import com.umograd.content.application.task.query.ListTasksHandler;
+import com.umograd.content.domain.external.ContentProvider;
 import com.umograd.content.domain.result.TaskResultRepository;
 import com.umograd.content.domain.task.TaskRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Map;
 
 @Configuration
 public class ApplicationConfig {
@@ -44,4 +48,9 @@ public class ApplicationConfig {
         return new ListTasksForChildHandler(repository);
     }
 
+    @Bean
+    public ImportTasksHandler importTasksHandler(TaskRepository repository,
+                                                 Map<String, ContentProvider> providers) {
+        return new ImportTasksHandler(repository, providers);
+    }
 }

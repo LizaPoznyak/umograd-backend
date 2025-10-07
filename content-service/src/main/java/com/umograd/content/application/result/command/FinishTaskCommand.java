@@ -2,6 +2,8 @@ package com.umograd.content.application.result.command;
 
 public record FinishTaskCommand(
         Long taskResultId,
-        int score,
+        Integer score,
+        Integer attempts,
+        boolean allowZero,
         Long childId
 ) {}
