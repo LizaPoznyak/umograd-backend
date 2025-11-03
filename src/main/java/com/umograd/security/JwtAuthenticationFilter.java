@@ -41,7 +41,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            username = jwtTokenProvider.extractUsername(token);
+
+            try {
+                // ⚡️ ловим истёкший токен
+                username = jwtTokenProvider.extractUsername(token);
+            } catch (io.jsonwebtoken.ExpiredJwtException ex) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return; // прерываем цепочку фильтров
+            } catch (io.jsonwebtoken.JwtException ex) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
