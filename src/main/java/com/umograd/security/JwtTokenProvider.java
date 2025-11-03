@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -21,33 +22,39 @@ public class JwtTokenProvider {
 
     private final Key secretKey;
 
-    private final long accessTokenValidity = 1000 * 60 * 15; // 15 минут
+    private final long accessTokenValidity = 1000 * 60 * 60; // 60 минут
     private final long refreshTokenValidity = 1000L * 60 * 60 * 24 * 7; // 7 дней
 
     public JwtTokenProvider(@Value("${jwt.secret}") String secret) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(Long userId, String username, UserDetails userDetails) {
+    public String generateAccessToken(Long userId, String username, LocalDate birthDate, UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", username);
         claims.put("roles", userDetails.getAuthorities()
                 .stream()
                 .map(a -> a.getAuthority())
                 .toList());
+        if (birthDate != null) {
+            claims.put("birthDate", birthDate.toString()); // ISO-строка
+        }
         return createToken(claims, userId.toString(), accessTokenValidity);
     }
 
-    public String generateRefreshToken(Long userId, String username, UserDetails userDetails) {
+    public String generateRefreshToken(Long userId, String username, LocalDate birthDate, UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", username);
         claims.put("roles", userDetails.getAuthorities()
                 .stream()
                 .map(a -> a.getAuthority())
                 .toList());
-
+        if (birthDate != null) {
+            claims.put("birthDate", birthDate.toString());
+        }
         return createToken(claims, userId.toString(), refreshTokenValidity);
     }
+
 
     public String extractSubject(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -55,6 +62,10 @@ public class JwtTokenProvider {
 
     public String extractUsername(String token) {
         return extractAllClaims(token).get("username", String.class);
+    }
+
+    public String extractAvatarUrl(String token) {
+        return extractAllClaims(token).get("avatarUrl", String.class);
     }
 
     public List<String> extractRoles(String token) {

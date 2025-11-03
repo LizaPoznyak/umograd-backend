@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,21 +43,53 @@ public class AuthService {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("Пользователь с таким именем уже существует");
         }
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Пользователь с таким email уже существует");
         }
 
-        Role role = request.getRole() != null ? request.getRole() : Role.ROLE_PARENT;
+        Role role;
+
+        // Первый пользователь в системе всегда модератор
+        if (userRepository.count() == 0) {
+            role = Role.ROLE_MODERATOR;
+        } else {
+            if (request.getRole() != null) {
+                role = request.getRole();
+            } else {
+                role = Boolean.TRUE.equals(request.getIsParent()) ? Role.ROLE_PARENT : Role.ROLE_CHILD;
+            }
+        }
+
+        // Проверка возраста для детей
+        LocalDate birthDate = request.getBirthDate();
+        if (role == Role.ROLE_CHILD) {
+            if (birthDate == null) {
+                throw new RuntimeException("Для регистрации ребёнка необходимо указать дату рождения");
+            }
+            int age = Period.between(birthDate, LocalDate.now()).getYears();
+            if (age < 1 || age > 18) {
+                throw new RuntimeException("Возраст ребёнка должен быть от 1 до 18 лет");
+            }
+        }
+
+        // Родительская связь (если задан parentUsername)
+        User parent = null;
+        if (role == Role.ROLE_CHILD && request.getParentUsername() != null) {
+            parent = userRepository.findByUsername(request.getParentUsername())
+                    .orElseThrow(() -> new RuntimeException("Родитель с таким username не найден"));
+        }
 
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .roles(new HashSet<>(Set.of(role)))
+                .birthDate(birthDate)
+                .avatarUrl(request.getAvatarUrl())
+                .parent(parent)
                 .build();
 
         userRepository.save(user);
-
         return generateTokens(user);
     }
 
@@ -82,6 +116,7 @@ public class AuthService {
         String newAccessToken = jwtTokenProvider.generateAccessToken(
                 user.getId(),
                 user.getUsername(),
+                user.getBirthDate(),
                 toUserDetails(user)
         );
         return new AuthResponse(newAccessToken, refreshToken, user.getId());
@@ -95,12 +130,14 @@ public class AuthService {
         String accessToken = jwtTokenProvider.generateAccessToken(
                 user.getId(),
                 user.getUsername(),
+                user.getBirthDate(),
                 userDetails
         );
 
         String refreshToken = jwtTokenProvider.generateRefreshToken(
                 user.getId(),
                 user.getUsername(),
+                user.getBirthDate(),
                 userDetails
         );
 

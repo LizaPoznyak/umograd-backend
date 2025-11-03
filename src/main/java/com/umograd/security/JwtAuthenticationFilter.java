@@ -62,6 +62,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                String avatarUrl = jwtTokenProvider.extractAvatarUrl(token);
+                request.setAttribute("avatarUrl", avatarUrl);
             }
         }
 

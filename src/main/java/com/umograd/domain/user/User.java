@@ -3,6 +3,7 @@ package com.umograd.domain.user;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,11 +23,18 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true) // email может быть необязательным
     private String email;
 
     @Column(nullable = false)
     private String password;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
+    @Lob
+    @Column(name = "avatar_url", columnDefinition = "LONGTEXT")
+    private String avatarUrl;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
@@ -40,5 +48,4 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private User parent;
-
 }
