@@ -1,6 +1,7 @@
 package com.umograd.content.infrastructure.external;
 
 import com.umograd.content.domain.external.ContentProvider;
+import com.umograd.content.domain.external.ExternalQuestionDto;
 import com.umograd.content.domain.external.ExternalTaskContentDto;
 import com.umograd.content.domain.external.ExternalTaskDto;
 import org.springframework.stereotype.Component;
@@ -20,14 +21,15 @@ public class OpenTdbContentProvider implements ContentProvider {
 
     @Override
     public List<ExternalTaskDto> fetchTasks(String topic, int limit) {
-        // Получаем categoryId по названию темы
         int categoryId = OpenTdbCategories.CATEGORY_MAP.getOrDefault(topic, 9);
 
         String url = "https://opentdb.com/api.php?amount=" + limit +
                 "&category=" + categoryId +
                 "&type=multiple";
 
+        @SuppressWarnings("unchecked")
         Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+        @SuppressWarnings("all")
         List<Map<String, Object>> results = (List<Map<String, Object>>) response.get("results");
 
         if (results == null || results.isEmpty()) {
@@ -35,25 +37,30 @@ public class OpenTdbContentProvider implements ContentProvider {
         }
 
         return results.stream().map(q -> {
-            String question = (String) q.get("question");
+            String questionText = (String) q.get("question");
             String correct = (String) q.get("correct_answer");
+            @SuppressWarnings("unchecked")
             List<String> incorrect = (List<String>) q.get("incorrect_answers");
+            String difficulty = ((String) q.get("difficulty")).toUpperCase();
+
+            ExternalQuestionDto questionObj = new ExternalQuestionDto(
+                    "MULTIPLE_CHOICE",
+                    questionText,
+                    mergeAnswers(correct, incorrect),
+                    correct,
+                    null
+            );
+
+            String sourceId = "opentdb-" + categoryId + "-" + System.identityHashCode(q);
 
             return new ExternalTaskDto(
-                    "opentdb-" + topic,
-                    "Trivia Question",
-                    "Вопрос из OpenTDB",
+                    sourceId,
+                    "Trivia: " + topic,
+                    "Вопрос из категории " + topic,
                     10, 99,
-                    ((String) q.get("difficulty")).toUpperCase(),
+                    difficulty,
                     List.of(topic),
-                    List.of(),
-                    null,
-                    new ExternalTaskContentDto(
-                            "quiz",
-                            question,
-                            mergeAnswers(correct, incorrect),
-                            correct
-                    )
+                    new ExternalTaskContentDto(List.of(questionObj)) // Теперь это список
             );
         }).toList();
     }
@@ -65,3 +72,4 @@ public class OpenTdbContentProvider implements ContentProvider {
         return all;
     }
 }
+

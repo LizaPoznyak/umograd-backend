@@ -3,20 +3,16 @@ package com.umograd.content.domain.task;
 import java.util.List;
 
 public class TaskContent {
-    private final String type;
-    private final String question;
-    private final List<String> options;
-    private final String answer;
+    private final List<Question> questions;
 
-    public TaskContent(String type, String question, List<String> options, String answer) {
-        this.type = type;
-        this.question = question;
-        this.options = options;
-        this.answer = answer;
+    public TaskContent(List<Question> questions) {
+//        if (questions == null || questions.isEmpty()) {
+//            throw new IllegalArgumentException("Task must have at least one question");
+//        }
+        this.questions = List.copyOf(questions);
     }
 
-    public String type() { return type; }
-    public String question() { return question; }
-    public List<String> options() { return options; }
-    public String answer() { return answer; }
+    public List<Question> questions() {
+        return questions;
+    }
 }

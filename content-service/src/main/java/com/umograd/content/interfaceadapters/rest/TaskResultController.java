@@ -42,9 +42,9 @@ public class TaskResultController {
                                 Authentication auth) {
         Long childId = Long.valueOf(auth.getName());
 
-        if (score != null && score == 0 && !allowZero) {
-            throw new IllegalArgumentException("Finishing with zero is not allowed without confirmation");
-        }
+//        if (score != null && score == 0 && !allowZero) {
+//            throw new IllegalArgumentException("Finishing with zero is not allowed without confirmation");
+//        }
 
         return finishHandler.handle(new FinishTaskCommand(taskResultId, score, attempts, allowZero, childId));
     }

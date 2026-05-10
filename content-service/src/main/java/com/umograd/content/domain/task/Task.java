@@ -1,11 +1,13 @@
 package com.umograd.content.domain.task;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Task {
-    private final TaskId id;          // внутренний ID (из БД)
-    private final String sourceId;    // внешний ID (например, "opentdb-19-12345")
+    private final TaskId id;
+    private final String sourceId;
 
     private TaskTitle title;
     private TaskDescription description;
@@ -52,6 +54,21 @@ public class Task {
     }
 
     // --- Методы поведения ---
+
+    // Обновление всего контента (всех вопросов разом)
+    public void updateContent(TaskContent newContent, LocalDateTime now) {
+        this.content = Objects.requireNonNull(newContent);
+        this.updatedAt = now;
+    }
+
+    @SuppressWarnings("unused")
+    public void addQuestion(Question question, LocalDateTime now) {
+        List<Question> updatedQuestions = new ArrayList<>(this.content.questions());
+        updatedQuestions.add(question);
+        this.content = new TaskContent(updatedQuestions);
+        this.updatedAt = now;
+    }
+
     public void rename(TaskTitle newTitle, TaskDescription newDescription, LocalDateTime now) {
         this.title = Objects.requireNonNull(newTitle);
         this.description = Objects.requireNonNull(newDescription);
@@ -68,11 +85,6 @@ public class Task {
         this.updatedAt = now;
     }
 
-    public void updateContent(TaskContent newContent, LocalDateTime now) {
-        this.content = Objects.requireNonNull(newContent);
-        this.updatedAt = now;
-    }
-
     // --- Геттеры ---
     public TaskId id() { return id; }
     public String sourceId() { return sourceId; }
@@ -85,3 +97,4 @@ public class Task {
     public Difficulty difficulty() { return difficulty; }
     public TaskContent content() { return content; }
 }
+

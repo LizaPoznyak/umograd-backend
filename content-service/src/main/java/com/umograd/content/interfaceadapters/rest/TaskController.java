@@ -2,13 +2,11 @@ package com.umograd.content.interfaceadapters.rest;
 
 import com.umograd.content.application.dto.CreateTaskRequest;
 import com.umograd.content.application.dto.TaskDto;
-import com.umograd.content.application.task.command.CreateTaskCommand;
-import com.umograd.content.application.task.command.CreateTaskHandler;
-import com.umograd.content.application.task.query.ListTasksForChildHandler;
-import com.umograd.content.application.task.query.ListTasksForChildQuery;
-import com.umograd.content.application.task.query.ListTasksHandler;
-import com.umograd.content.application.task.query.ListTasksQuery;
+import com.umograd.content.application.task.command.*;
+import com.umograd.content.application.task.query.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -16,20 +14,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/tasks")
 public class TaskController {
 
     private final CreateTaskHandler createTaskHandler;
     private final ListTasksHandler listTasksHandler;
+    private final EditTasksHandler editTasksHandler;
+    private final DeleteTaskHandler deleteTaskHandler;
     private final ListTasksForChildHandler listTasksForChildHandler;
 
-    public TaskController(CreateTaskHandler createTaskHandler,
-                          ListTasksHandler listTasksHandler,
-                          ListTasksForChildHandler listTasksForChildHandler) {
-        this.createTaskHandler = createTaskHandler;
-        this.listTasksHandler = listTasksHandler;
-        this.listTasksForChildHandler = listTasksForChildHandler;
-    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -68,4 +62,16 @@ public class TaskController {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Задание не найдено"));
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateTask(@PathVariable Long id, @RequestBody TaskDto taskDto) {
+        return ResponseEntity.ok(editTasksHandler.handle(new EditTasksCommand(id, taskDto)));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+        deleteTaskHandler.handle(new DeleteTaskCommand(id));
+        return ResponseEntity.noContent().build();
+    }
 }
+
+

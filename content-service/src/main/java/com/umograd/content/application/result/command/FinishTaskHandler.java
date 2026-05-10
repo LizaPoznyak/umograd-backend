@@ -22,13 +22,9 @@ public class FinishTaskHandler {
             throw new SecurityException("Child cannot finish someone else's task");
         }
 
-        // Опционально: сохраняем attempts в домене (если есть соответствующее поле)
-        // result.setAttempts(cmd.attempts());
-
-        // Дополнительно: guard для нуля (на случай, если контроллер не проверил)
-        if (cmd.score() != null && cmd.score() == 0 && !cmd.allowZero()) {
-            throw new IllegalArgumentException("Finishing with zero is not allowed without confirmation");
-        }
+//        if (cmd.score() != null && cmd.score() == 0 && !cmd.allowZero()) {
+//            throw new IllegalArgumentException("Finishing with zero is not allowed without confirmation");
+//        }
 
         result.markFinished(cmd.score(), LocalDateTime.now());
         var saved = repository.save(result);

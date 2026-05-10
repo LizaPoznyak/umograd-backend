@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tasks")
@@ -13,13 +15,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SuppressWarnings("unused")
 public class TaskJpaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // --- новое поле для внешнего идентификатора ---
     @Column(name = "source_id")
     private String sourceId;
 
@@ -35,12 +37,11 @@ public class TaskJpaEntity {
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
 
-    // --- поля для TaskContent ---
-    private String contentType;   // например: "MULTIPLE_CHOICE", "TEXT", "IMAGE"
-    private String question;
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TaskQuestionJpaEntity> questions = new ArrayList<>();
 
-    @Lob
-    private String options;       // JSON‑строка со списком вариантов
-
-    private String answer;
+    public void addQuestion(TaskQuestionJpaEntity question) {
+        questions.add(question);
+        question.setTask(this);
+    }
 }
