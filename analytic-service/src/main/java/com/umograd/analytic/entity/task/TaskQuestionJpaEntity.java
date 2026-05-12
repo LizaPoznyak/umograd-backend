@@ -1,4 +1,4 @@
-package com.umograd.content.infrastructure.persistence.jpa;
+package com.umograd.analytic.entity.task;
 
 import jakarta.persistence.*;
 import lombok.*;

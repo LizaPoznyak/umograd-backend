@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: analytic-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/analytic_db
+    username: root
+    password: root
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  flyway:
+    baseline-on-migrate: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  web:
+    resources:
+      static-locations: classpath:/static/
+server:
+  port: 8182
+  error:
+    include-message: always
+
+#upload:
+#  path: D:/Университет/Диплом/umograd-backend/content-service/src/main/resources/img/
+
+jwt:
+  secret: mysupersecretkeymysupersecretkey

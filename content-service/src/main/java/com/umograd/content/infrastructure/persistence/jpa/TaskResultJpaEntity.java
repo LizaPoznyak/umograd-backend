@@ -6,12 +6,12 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "task_results")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "task_results", catalog = "content_db")
 public class TaskResultJpaEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,7 +30,4 @@ public class TaskResultJpaEntity {
 
     @Column(name="finished_at")
     private LocalDateTime finishedAt;
-
-    // getters/setters
-    // ...
 }

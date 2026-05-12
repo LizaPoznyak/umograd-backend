@@ -48,4 +48,7 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private User parent;
+
+    @Column(name = "parent_consent")
+    private boolean parentConsent;
 }

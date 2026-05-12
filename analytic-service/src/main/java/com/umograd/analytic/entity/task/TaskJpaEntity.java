@@ -1,6 +1,6 @@
-package com.umograd.content.infrastructure.persistence.jpa;
+package com.umograd.analytic.entity.task;
 
-import com.umograd.content.domain.task.Difficulty;
+import com.umograd.analytic.enums.Difficulty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,8 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SuppressWarnings("unused")
 @Table(name = "tasks", catalog = "content_db")
+@SuppressWarnings("unused")
 public class TaskJpaEntity {
 
     @Id
@@ -39,6 +39,9 @@ public class TaskJpaEntity {
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TaskQuestionJpaEntity> questions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "task")
+    private List<TaskResultEntity> results = new ArrayList<>();
 
     public void addQuestion(TaskQuestionJpaEntity question) {
         questions.add(question);
