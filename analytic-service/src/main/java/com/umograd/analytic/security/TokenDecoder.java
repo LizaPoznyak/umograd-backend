@@ -2,9 +2,6 @@ package com.umograd.analytic.security;
 
 import java.util.List;
 
-/**
- * Port to decode/validate tokens. Implement against your auth-service.
- */
 public interface TokenDecoder {
     Claims decode(String token);
 
