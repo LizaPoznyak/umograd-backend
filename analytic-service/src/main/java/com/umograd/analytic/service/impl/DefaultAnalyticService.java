@@ -1,7 +1,6 @@
 package com.umograd.analytic.service.impl;
 
 import com.umograd.analytic.dto.TaskAnalyticsResponse;
-import com.umograd.analytic.repository.AnalyticRepository;
 import com.umograd.analytic.mapper.AnalyticsMapper;
 import com.umograd.analytic.repository.task.TaskRepository;
 import com.umograd.analytic.service.AnalyticService;
@@ -14,8 +13,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class DefaultAnalyticService implements AnalyticService {
-
-    private final AnalyticRepository analyticRepository;
 
     private final TaskRepository taskRepository;
 
