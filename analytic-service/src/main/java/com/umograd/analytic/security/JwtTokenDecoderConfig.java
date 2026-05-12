@@ -29,6 +29,7 @@ public class JwtTokenDecoderConfig {
                     .getBody();
 
             String username = body.getSubject();
+            @SuppressWarnings("unchecked")
             List<String> roles = body.get("roles", List.class);
             Long childId = body.get("childId", Long.class);
             Long userId = body.get("userId", Long.class);
