@@ -33,6 +33,9 @@ public class TaskResultEntity {
     @Column(name = "finished_at")
     private LocalDateTime finishedAt;
 
+    @Column(name = "started_at")
+    private LocalDateTime startedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id", insertable = false, updatable = false)
     private TaskJpaEntity task;

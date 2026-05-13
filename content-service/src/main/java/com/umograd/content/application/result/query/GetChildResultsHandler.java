@@ -15,12 +15,13 @@ public class GetChildResultsHandler {
     public List<TaskResultDto> handle(GetChildResultsQuery q) {
         return repository.findByChildId(q.childId()).stream()
                 .map(r -> new TaskResultDto(
-                        r.id() != null ? r.id().value() : null,
-                        r.taskId().value(),
-                        r.childId(),
-                        r.status().name(),
-                        r.score(),
-                        r.finishedAt() != null ? r.finishedAt().toString() : null
+                        r.getId() != null ? r.getId().value() : null,
+                        r.getTaskId().value(),
+                        r.getChildId(),
+                        r.getStatus().name(),
+                        r.getScore(),
+                        r.getFinishedAt() != null ? r.getFinishedAt().toString() : null,
+                        r.getStartedAt() != null ? r.getStartedAt().toString() : null
                 ))
                 .toList();
     }

@@ -16,12 +16,13 @@ public class StartTaskHandler {
         var result = TaskResult.createNew(new TaskId(cmd.taskId()), cmd.childId());
         var saved = repository.save(result);
         return new TaskResultDto(
-                saved.id() != null ? saved.id().value() : null,
-                saved.taskId().value(),
-                saved.childId(),
-                saved.status().name(),
-                saved.score(),
-                saved.finishedAt() != null ? saved.finishedAt().toString() : null
+                saved.getId() != null ? saved.getId().value() : null,
+                saved.getTaskId().value(),
+                saved.getChildId(),
+                saved.getStatus().name(),
+                saved.getScore(),
+                saved.getFinishedAt() != null ? saved.getFinishedAt().toString() : null,
+                saved.getStartedAt() != null ? saved.getStartedAt().toString() : null
         );
     }
 }

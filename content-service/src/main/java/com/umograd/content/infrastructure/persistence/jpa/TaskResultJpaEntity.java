@@ -30,4 +30,7 @@ public class TaskResultJpaEntity {
 
     @Column(name="finished_at")
     private LocalDateTime finishedAt;
+
+    @Column(name = "started_at")
+    private LocalDateTime startedAt;
 }

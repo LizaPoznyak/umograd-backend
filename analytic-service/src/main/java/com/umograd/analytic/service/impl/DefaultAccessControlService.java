@@ -1,7 +1,8 @@
-package com.umograd.analytic.service;
+package com.umograd.analytic.service.impl;
 
 import com.umograd.analytic.dto.AccessResponse;
 import com.umograd.analytic.repository.UserAnalyticsRepository;
+import com.umograd.analytic.service.AccessControlService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
