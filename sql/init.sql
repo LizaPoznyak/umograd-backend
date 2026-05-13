@@ -3,9 +3,9 @@ create table if not exists analytic_db.achievements
     id              bigint auto_increment
         primary key,
     name            varchar(255) not null,
-    description     text         null,
-    icon_url        varchar(512) null,
-    condition_type  varchar(50)  not null,
+    description     varchar(255) null,
+    icon_url        varchar(255) null,
+    condition_type  varchar(255) null,
     condition_value int          not null
 );
 
@@ -61,6 +61,7 @@ create table if not exists content_db.task_results
     id          bigint auto_increment
         primary key,
     child_id    bigint      not null,
+    started_at  datetime(6) null,
     finished_at datetime(6) null,
     score       int         null,
     status      varchar(20) not null,
@@ -123,5 +124,4 @@ create table if not exists umograd.user_roles
     constraint FKhfh9dx7w3ubf1co1vdev94g3f
         foreign key (user_id) references umograd.users (id)
 );
-
 
