@@ -1,0 +1,16 @@
+name: umograd
+
+services:
+  db:
+    image: mysql:8.1.0
+    restart: on-failure
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:8.6.3
+    restart: on-failure
+    ports:
+      - "6379:6379"

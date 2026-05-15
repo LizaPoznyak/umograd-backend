@@ -4,6 +4,8 @@ import com.umograd.content.application.dto.CreateTaskRequest;
 import com.umograd.content.application.dto.TaskDto;
 import com.umograd.content.application.task.command.*;
 import com.umograd.content.application.task.query.*;
+import com.umograd.content.infrastructure.persistence.jpa.User;
+import com.umograd.content.infrastructure.persistence.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import java.util.List;
 public class TaskController {
 
     private final CreateTaskHandler createTaskHandler;
+    private UserRepository userRepository;
     private final ListTasksHandler listTasksHandler;
     private final EditTasksHandler editTasksHandler;
     private final DeleteTaskHandler deleteTaskHandler;
@@ -72,6 +75,16 @@ public class TaskController {
         deleteTaskHandler.handle(new DeleteTaskCommand(id));
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/users/{id}/block")
+    public void blockUser(@PathVariable Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        user.setUsername(user.getUsername() + "_BLOCKED");
+        userRepository.save(user);
+    }
+
 }
 
 

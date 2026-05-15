@@ -1,3 +1,16 @@
+create schema if not exists umograd;
+create schema if not exists content_db;
+create schema if not exists analytic_db;
+
+create table if not exists analytic_db.system_logs (
+                                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                         user_id BIGINT NOT NULL,
+                                         username VARCHAR(255) NOT NULL,
+                                         event_type VARCHAR(100) NOT NULL,
+                                         description TEXT,
+                                         created_at DATETIME(6) NOT NULL
+);
+
 create table if not exists analytic_db.achievements
 (
     id              bigint auto_increment
