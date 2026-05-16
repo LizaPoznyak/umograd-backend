@@ -1,4 +1,4 @@
-package integration;
+package com.umograd.analytic.integration;
 
 import com.umograd.analytic.entity.task.TaskJpaEntity;
 import com.umograd.analytic.entity.task.TaskResultEntity;

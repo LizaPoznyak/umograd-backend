@@ -1,3 +1,5 @@
+SET NAMES 'utf8mb4';
+
 INSERT INTO analytic_db.achievements (name, description, icon_url, condition_type, condition_value) VALUES ('Снайпер', '10 верных ответов подряд', null, 'CONSECUTIVE_CORRECT', 1);
 INSERT INTO analytic_db.child_achievements (child_id, achievement_id, earned_at) VALUES (5, 1, '2026-05-13 00:48:45');
 

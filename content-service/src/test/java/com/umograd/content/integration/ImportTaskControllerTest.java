@@ -1,4 +1,4 @@
-package integration;
+package com.umograd.content.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umograd.content.application.dto.TaskContentDto;

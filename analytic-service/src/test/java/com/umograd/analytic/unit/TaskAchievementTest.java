@@ -1,4 +1,4 @@
-package unit;
+package com.umograd.analytic.unit;
 
 import com.umograd.analytic.dto.AchievementGrantResponse;
 import com.umograd.analytic.entity.AchievementEntity;

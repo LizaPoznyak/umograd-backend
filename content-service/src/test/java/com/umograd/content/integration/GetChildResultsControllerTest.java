@@ -1,4 +1,4 @@
-package integration;
+package com.umograd.content.integration;
 
 import com.umograd.content.application.dto.TaskResultDto;
 import com.umograd.content.application.result.query.GetChildResultsHandler;

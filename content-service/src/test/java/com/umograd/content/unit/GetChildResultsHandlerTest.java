@@ -1,4 +1,4 @@
-package unit;
+package com.umograd.content.unit;
 
 import com.umograd.content.application.dto.TaskResultDto;
 import com.umograd.content.application.result.query.GetChildResultsHandler;
