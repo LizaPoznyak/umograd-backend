@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -29,28 +30,37 @@ public class JwtTokenProvider {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(Long userId, String username, LocalDate birthDate, UserDetails userDetails) {
+    public String generateAccessToken(Long userId, String username, LocalDate birthDate,
+                                      String email, UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", username);
         claims.put("roles", userDetails.getAuthorities()
                 .stream()
-                .map(a -> a.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .toList());
         if (birthDate != null) {
             claims.put("birthDate", birthDate.toString()); // ISO-строка
         }
+
+        if (email != null) {
+            claims.put("email", email);
+        }
         return createToken(claims, userId.toString(), accessTokenValidity);
     }
 
-    public String generateRefreshToken(Long userId, String username, LocalDate birthDate, UserDetails userDetails) {
+    public String generateRefreshToken(Long userId, String username, LocalDate birthDate,
+                                       String email, UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", username);
         claims.put("roles", userDetails.getAuthorities()
                 .stream()
-                .map(a -> a.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .toList());
         if (birthDate != null) {
             claims.put("birthDate", birthDate.toString());
+        }
+        if (email != null) {
+            claims.put("email", email);
         }
         return createToken(claims, userId.toString(), refreshTokenValidity);
     }

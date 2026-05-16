@@ -28,11 +28,11 @@ public class JwtTokenDecoderConfig {
                     .parseClaimsJws(token)
                     .getBody();
 
-            String username = body.getSubject();
+            String username = body.get("username", String.class);
             @SuppressWarnings("unchecked")
             List<String> roles = body.get("roles", List.class);
             Long childId = body.get("childId", Long.class);
-            Long userId = body.get("userId", Long.class);
+            Long userId = Long.valueOf(body.getSubject());
             String email = body.get("email", String.class);
 
             return new TokenDecoder.Claims(username, roles, childId, userId, email);

@@ -1,5 +1,6 @@
 package com.umograd.analytic.exception;
 
+import com.umograd.analytic.security.AuthenticationHolder;
 import com.umograd.analytic.service.SystemLogService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +19,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleAllExceptions(Exception ex, HttpServletRequest request) {
-        Long dummyUserId = 5L;
-        String dummyUsername = "user_test";
-        String errorMessage = "Критический сбой по адресу " + request.getRequestURI() + ": " + ex.getMessage();
+        Long userId = AuthenticationHolder.getUserId();
+        String errorMessage = String.format("Сбой на эндпоинте [%s]. Ошибка: %s",
+                request.getRequestURI(), ex.getMessage());
 
-        systemLogService.logError(dummyUserId, dummyUsername, errorMessage);
+        systemLogService.logError(userId, AuthenticationHolder.getUsername(), errorMessage);
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)

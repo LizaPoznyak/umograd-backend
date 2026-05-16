@@ -48,12 +48,14 @@ public class UpdateUserProfileHandler {
                 user.getId(),
                 user.getUsername(),
                 user.getBirthDate(),
+                user.getEmail(),
                 userDetails
         );
         String refreshToken = jwtService.generateRefreshToken(
                 user.getId(),
                 user.getUsername(),
                 user.getBirthDate(),
+                user.getEmail(),
                 userDetails
         );
 

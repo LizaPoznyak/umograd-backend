@@ -117,6 +117,7 @@ public class AuthService {
                 user.getId(),
                 user.getUsername(),
                 user.getBirthDate(),
+                user.getEmail(),
                 toUserDetails(user)
         );
         return new AuthResponse(newAccessToken, refreshToken, user.getId());
@@ -131,6 +132,7 @@ public class AuthService {
                 user.getId(),
                 user.getUsername(),
                 user.getBirthDate(),
+                user.getEmail(),
                 userDetails
         );
 
@@ -138,6 +140,7 @@ public class AuthService {
                 user.getId(),
                 user.getUsername(),
                 user.getBirthDate(),
+                user.getEmail(),
                 userDetails
         );
 
