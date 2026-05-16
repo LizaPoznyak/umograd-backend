@@ -7,6 +7,7 @@ public record SystemLogDto (
         Long userId,
         String username,
         String eventType,
+        String endpoint,
         String description,
         LocalDateTime createdAt
 ){

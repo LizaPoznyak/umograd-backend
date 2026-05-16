@@ -21,6 +21,9 @@ public class SystemLogEntity {
     @Column(name = "event_type", nullable = false)
     private String eventType;
 
+    @Column(name = "endpoint")
+    private String endpoint;
+
     private String description;
 
     @Column(name = "created_at", nullable = false)

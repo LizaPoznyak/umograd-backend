@@ -20,10 +20,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleAllExceptions(Exception ex, HttpServletRequest request) {
         Long userId = AuthenticationHolder.getUserId();
-        String errorMessage = String.format("Сбой на эндпоинте [%s]. Ошибка: %s",
-                request.getRequestURI(), ex.getMessage());
-
-        systemLogService.logError(userId, AuthenticationHolder.getUsername(), errorMessage);
+        String endpoint = request.getRequestURI();
+        String errorMessage = ex.getMessage() != null ? ex.getMessage() : "Непредвиденное исключение";
+        systemLogService.logError(userId, AuthenticationHolder.getUsername(), endpoint,errorMessage);
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)

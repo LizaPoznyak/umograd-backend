@@ -18,12 +18,13 @@ public class DefaultSystemLogService implements SystemLogService {
     private final SystemLogRepository systemLogRepository;
 
     @Transactional
-    public void logError(Long userId, String username, String message) {
+    public void logError(Long userId, String username, String endpoint, String message) {
         SystemLogEntity log = new SystemLogEntity();
         log.setUserId(userId != null ? userId : 0L);
         log.setUsername(username != null ? username : "SYSTEM");
         log.setEventType("ERROR");
         log.setDescription(message);
+        log.setEndpoint(endpoint);
         log.setCreatedAt(LocalDateTime.now());
         systemLogRepository.save(log);
     }
@@ -34,7 +35,8 @@ public class DefaultSystemLogService implements SystemLogService {
                 .map(log ->
                         new SystemLogDto(
                                 log.getId(), log.getUserId(), log.getUsername(),
-                                log.getEventType(), log.getDescription(), log.getCreatedAt()
+                                log.getEventType(), log.getEndpoint(),
+                                log.getDescription(), log.getCreatedAt()
                         )).toList();
     }
 
