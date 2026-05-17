@@ -45,11 +45,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 var authorities = roles.stream()
                         .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
                         .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+                        .toList();
 
                 System.out.println("Authorities set in context: " + authorities);
 
-                var authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        claims, null, claims.roles().stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList())
+                );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (Exception e) {
                 System.out.println("JWT decode failed: " + e.getMessage());

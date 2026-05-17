@@ -25,8 +25,8 @@ public class AchievementEntity {
     @Column(name = "icon_url")
     private String iconUrl;
 
-    @Column(name = "condition_type")
-    private String conditionType;
+    @Column(name = "condition_expression", nullable = false)
+    private String conditionExpression;
 
     @Column(name = "condition_value")
     private Integer conditionValue;

@@ -1,7 +1,13 @@
 SET NAMES 'utf8mb4';
 
-INSERT INTO analytic_db.achievements (name, description, icon_url, condition_type, condition_value) VALUES ('Снайпер', '10 верных ответов подряд', null, 'CONSECUTIVE_CORRECT', 1);
-INSERT INTO analytic_db.child_achievements (child_id, achievement_id, earned_at) VALUES (5, 1, '2026-05-13 00:48:45');
+INSERT INTO analytic_db.achievements (id, name, description, icon_url, condition_expression, condition_value) VALUES (1, 'Снайпер', '10 верных заданий подряд', null, '#results.size() >= #targetValue and #results.?[status == "DONE" and score >= 100].size() >= #targetValue', 10);
+INSERT INTO analytic_db.achievements (id, name, description, icon_url, condition_expression, condition_value) VALUES (2, 'Алмазный ум', 'Решить 5 задач без ошибок', null, '#results.?[status == "DONE" and score >= 100].size() >= #targetValue', 5);
+INSERT INTO analytic_db.achievements (id, name, description, icon_url, condition_expression, condition_value) VALUES (3, 'Король викторин', 'Пройти 3 квиза подряд', null, '#results.size() >= #targetValue', 3);
+INSERT INTO analytic_db.achievements (id, name, description, icon_url, condition_expression, condition_value) VALUES (4, 'Учёный исследователь', 'Выполнить задания всех категорий сложности', null, '#results.size() >= 1', 1);
+INSERT INTO analytic_db.achievements (id, name, description, icon_url, condition_expression, condition_value) VALUES (5, 'Золотая медаль', 'Набрать суммарно 500 баллов за всё время', null, '#results.size() >= 1', 1);
+INSERT INTO analytic_db.achievements (id, name, description, icon_url, condition_expression, condition_value) VALUES (6, 'Любимец команды', 'Проявлять активность на платформе каждый день', null, '#results.size() >= 1', 1);
+
+INSERT INTO analytic_db.child_achievements (child_id, achievement_id, earned_at) VALUES (4, 1, '2026-05-13 00:48:45');
 
 INSERT INTO content_db.tasks (created_at, created_by, description, difficulty, max_age, min_age, title, updated_at, source_id) VALUES ('2025-09-24 17:45:16.419907', 'mod', 'Викторина', 'MEDIUM', 13, 10, 'Алгебра', '2026-05-10 19:35:45.725151', 'opentdb-Science: Mathematics');
 INSERT INTO content_db.tasks (created_at, created_by, description, difficulty, max_age, min_age, title, updated_at, source_id) VALUES ('2025-09-25 15:47:27.683953', '1', 'Викторина', 'EASY', 13, 10, 'Математика', null, 'opentdb-Science: Mathematics');

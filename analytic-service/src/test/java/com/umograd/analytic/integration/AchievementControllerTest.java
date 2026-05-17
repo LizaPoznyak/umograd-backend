@@ -59,12 +59,13 @@ class AchievementControllerTest {
 
     @Test
     void shouldGrantAchievementWhenConditionsAreMet() throws Exception {
-        Long childId = 1L;
+        Long childId = 4L;
 
         AchievementEntity achievement = new AchievementEntity();
-        achievement.setConditionType("CONSECUTIVE_CORRECT");
-        achievement.setConditionValue(1);
         achievement.setName("test");
+        achievement.setDescription("Тестовая награда");
+        achievement.setConditionExpression("#results.size() >= #targetValue");
+        achievement.setConditionValue(1);
         achievementRepository.save(achievement);
 
         TaskResultEntity result = new TaskResultEntity();
@@ -80,6 +81,7 @@ class AchievementControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(1));
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("test")); // Дополнительно проверяем имя выданной награды
     }
 }

@@ -13,13 +13,13 @@ create table if not exists analytic_db.system_logs (
 
 create table if not exists analytic_db.achievements
 (
-    id              bigint auto_increment
+    id                   bigint auto_increment
         primary key,
-    name            varchar(255) not null,
-    description     varchar(255) null,
-    icon_url        varchar(255) null,
-    condition_type  varchar(255) null,
-    condition_value int          not null
+    name                 varchar(255) not null,
+    description          varchar(255) null,
+    icon_url             varchar(255) null,
+    condition_expression varchar(255) not null,
+    condition_value      int          not null
 );
 
 create table if not exists analytic_db.child_achievements

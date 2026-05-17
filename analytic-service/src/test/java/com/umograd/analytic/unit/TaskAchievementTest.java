@@ -9,11 +9,13 @@ import com.umograd.analytic.repository.analytic.AchievementRepository;
 import com.umograd.analytic.repository.analytic.ChildAchievementRepository;
 import com.umograd.analytic.repository.task.TaskResultRepository;
 import com.umograd.analytic.service.impl.DefaultAchievementService;
+import com.umograd.analytic.util.ExpressionEvaluator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
@@ -38,34 +40,39 @@ class TaskAchievementTest {
     @Mock
     private AchievementMapper achievementMapper;
 
+    @Spy
+    private ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator();
+
     @InjectMocks
     private DefaultAchievementService service;
 
-    private final Long childId = 1L;
+    private final Long childId = 4L;
 
-    private AchievementEntity createAchievement(Long id, String type, Integer value) {
+    private AchievementEntity createAchievement(Long id, String expression, Integer value) {
         AchievementEntity a = new AchievementEntity();
         a.setId(id);
-        a.setConditionType(type);
+        a.setConditionExpression(expression);
         a.setConditionValue(value);
         return a;
     }
 
     @Test
     void checkAndGrantShouldGrantAchievementWhenConditionsAreMet() {
-        AchievementEntity achievement = createAchievement(10L, "CONSECUTIVE_CORRECT", 2);
+        String expression = "#results.size() >= #targetValue and #results.?[status == 'DONE' and score >= 100].size() >= #targetValue";
+        AchievementEntity achievement = createAchievement(10L, expression, 2);
+
         when(achievementRepository.findAll()).thenReturn(List.of(achievement));
         when(childAchievementRepository.existsByChildIdAndAchievementId(childId, 10L)).thenReturn(false);
 
-        TaskResultEntity r1 = mock(TaskResultEntity.class);
-        when(r1.getStatus()).thenReturn("DONE");
-        when(r1.getScore()).thenReturn(100);
+        TaskResultEntity r1 = new TaskResultEntity();
+        r1.setStatus("DONE");
+        r1.setScore(100);
 
-        TaskResultEntity r2 = mock(TaskResultEntity.class);
-        when(r2.getStatus()).thenReturn("DONE");
-        when(r2.getScore()).thenReturn(120);
+        TaskResultEntity r2 = new TaskResultEntity();
+        r2.setStatus("DONE");
+        r2.setScore(120);
 
-        when(taskResultRepository.findLastResultsWithWindow(childId, 2)).thenReturn(List.of(r1, r2));
+        when(taskResultRepository.findLastResultsWithWindow(childId, 20)).thenReturn(List.of(r1, r2));
 
         AchievementGrantResponse response = mock(AchievementGrantResponse.class);
         when(achievementMapper.toGrantResponse(achievement)).thenReturn(response);
@@ -86,7 +93,7 @@ class TaskAchievementTest {
 
     @Test
     void checkAndGrantShouldNotGrantWhenAlreadyEarned() {
-        AchievementEntity achievement = createAchievement(10L, "CONSECUTIVE_CORRECT", 2);
+        AchievementEntity achievement = createAchievement(10L, "#results.size() >= #targetValue", 2);
         when(achievementRepository.findAll()).thenReturn(List.of(achievement));
         when(childAchievementRepository.existsByChildIdAndAchievementId(childId, 10L)).thenReturn(true);
 
@@ -98,26 +105,32 @@ class TaskAchievementTest {
     }
 
     @Test
-    void checkAndGrantShouldNotGrantWhenUnknownConditionType() {
-        AchievementEntity achievement = createAchievement(10L, "UNKNOWN_TYPE", 2);
+    void checkAndGrantShouldNotGrantWhenSyntaxErrorInExpression() {
+        AchievementEntity achievement = createAchievement(10L, "!!!INVALID_SPEL_SYNTAX!!!", 2);
         when(achievementRepository.findAll()).thenReturn(List.of(achievement));
         when(childAchievementRepository.existsByChildIdAndAchievementId(childId, 10L)).thenReturn(false);
+        when(taskResultRepository.findLastResultsWithWindow(childId, 20)).thenReturn(Collections.emptyList());
 
         List<AchievementGrantResponse> result = service.checkAndGrant(childId);
 
         assertTrue(result.isEmpty());
-        verifyNoInteractions(taskResultRepository, achievementMapper);
         verify(childAchievementRepository, never()).save(any());
+        verifyNoInteractions(achievementMapper);
     }
 
     @Test
     void checkAndGrantShouldNotGrantWhenNotEnoughResults() {
-        AchievementEntity achievement = createAchievement(10L, "CONSECUTIVE_CORRECT", 3);
+        String expression = "#results.size() >= #targetValue and #results.subList(0, #targetValue).stream().allMatch(r -> 'DONE'.equals(r.status) && r.score >= 100)";
+        AchievementEntity achievement = createAchievement(10L, expression, 3);
+
         when(achievementRepository.findAll()).thenReturn(List.of(achievement));
         when(childAchievementRepository.existsByChildIdAndAchievementId(childId, 10L)).thenReturn(false);
 
-        TaskResultEntity r1 = mock(TaskResultEntity.class);
-        when(taskResultRepository.findLastResultsWithWindow(childId, 3)).thenReturn(List.of(r1));
+        TaskResultEntity r1 = new TaskResultEntity();
+        r1.setStatus("DONE");
+        r1.setScore(100);
+
+        when(taskResultRepository.findLastResultsWithWindow(childId, 20)).thenReturn(List.of(r1));
 
         List<AchievementGrantResponse> result = service.checkAndGrant(childId);
 
@@ -128,14 +141,17 @@ class TaskAchievementTest {
 
     @Test
     void checkAndGrantShouldNotGrantWhenStatusIsNotDone() {
-        AchievementEntity achievement = createAchievement(10L, "CONSECUTIVE_CORRECT", 1);
+        String expression = "#results.size() >= #targetValue and #results.subList(0, #targetValue).stream().allMatch(r -> 'DONE'.equals(r.status) && r.score >= 100)";
+        AchievementEntity achievement = createAchievement(10L, expression, 1);
+
         when(achievementRepository.findAll()).thenReturn(List.of(achievement));
         when(childAchievementRepository.existsByChildIdAndAchievementId(childId, 10L)).thenReturn(false);
 
-        TaskResultEntity r1 = mock(TaskResultEntity.class);
-        when(r1.getStatus()).thenReturn("FAILED");
+        TaskResultEntity r1 = new TaskResultEntity();
+        r1.setStatus("FAILED");
+        r1.setScore(100);
 
-        when(taskResultRepository.findLastResultsWithWindow(childId, 1)).thenReturn(List.of(r1));
+        when(taskResultRepository.findLastResultsWithWindow(childId, 20)).thenReturn(List.of(r1));
 
         List<AchievementGrantResponse> result = service.checkAndGrant(childId);
 
@@ -145,15 +161,17 @@ class TaskAchievementTest {
 
     @Test
     void checkAndGrantShouldNotGrantWhenScoreIsLow() {
-        AchievementEntity achievement = createAchievement(10L, "CONSECUTIVE_CORRECT", 1);
+        String expression = "#results.size() >= #targetValue and #results.subList(0, #targetValue).stream().allMatch(r -> 'DONE'.equals(r.status) && r.score >= 100)";
+        AchievementEntity achievement = createAchievement(10L, expression, 1);
+
         when(achievementRepository.findAll()).thenReturn(List.of(achievement));
         when(childAchievementRepository.existsByChildIdAndAchievementId(childId, 10L)).thenReturn(false);
 
-        TaskResultEntity r1 = mock(TaskResultEntity.class);
-        when(r1.getStatus()).thenReturn("DONE");
-        when(r1.getScore()).thenReturn(99);
+        TaskResultEntity r1 = new TaskResultEntity();
+        r1.setStatus("DONE");
+        r1.setScore(99);
 
-        when(taskResultRepository.findLastResultsWithWindow(childId, 1)).thenReturn(List.of(r1));
+        when(taskResultRepository.findLastResultsWithWindow(childId, 20)).thenReturn(List.of(r1));
 
         List<AchievementGrantResponse> result = service.checkAndGrant(childId);
 
@@ -163,8 +181,8 @@ class TaskAchievementTest {
 
     @Test
     void getEarnedAchievementIdsShouldReturnMappedIds() {
-        AchievementEntity a1 = createAchievement(100L, "TYPE", 1);
-        AchievementEntity a2 = createAchievement(200L, "TYPE", 2);
+        AchievementEntity a1 = createAchievement(100L, "true", 1);
+        AchievementEntity a2 = createAchievement(200L, "true", 2);
 
         ChildAchievementEntity ca1 = new ChildAchievementEntity();
         ca1.setAchievement(a1);

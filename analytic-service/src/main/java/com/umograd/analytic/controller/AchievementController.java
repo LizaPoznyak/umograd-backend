@@ -1,6 +1,7 @@
 package com.umograd.analytic.controller;
 
 import com.umograd.analytic.dto.AchievementGrantResponse;
+import com.umograd.analytic.dto.AchievementResponse;
 import com.umograd.analytic.service.AchievementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -22,5 +23,10 @@ public class AchievementController {
     @GetMapping("/child/{childId}")
     public List<Long> getEarnedAchievementIds(@PathVariable Long childId) {
         return achievementService.getEarnedAchievementIds(childId);
+    }
+
+    @GetMapping
+    public List<AchievementResponse> getAchievements() {
+        return achievementService.getAchievements();
     }
 }

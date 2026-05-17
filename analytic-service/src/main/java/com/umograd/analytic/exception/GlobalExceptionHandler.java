@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleAllExceptions(Exception ex, HttpServletRequest request) {
         Long userId = AuthenticationHolder.getUserId();
         String endpoint = request.getRequestURI();
-        String errorMessage = ex.getMessage() != null ? ex.getMessage() : "Непредвиденное исключение";
+        String errorMessage = ex.getMessage() != null ? ex.getMessage() : "Неопределнное исключение";
         systemLogService.logError(userId, AuthenticationHolder.getUsername(), endpoint,errorMessage);
 
         return ResponseEntity

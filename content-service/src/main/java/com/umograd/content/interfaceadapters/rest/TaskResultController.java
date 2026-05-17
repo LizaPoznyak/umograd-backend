@@ -7,8 +7,8 @@ import com.umograd.content.application.result.command.StartTaskCommand;
 import com.umograd.content.application.result.command.StartTaskHandler;
 import com.umograd.content.application.result.query.GetChildResultsHandler;
 import com.umograd.content.application.result.query.GetChildResultsQuery;
+import com.umograd.content.security.AuthenticationHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,14 +38,8 @@ public class TaskResultController {
     public TaskResultDto finish(@PathVariable Long taskResultId,
                                 @RequestParam(required = false) Integer score,
                                 @RequestParam(required = false, defaultValue = "0") Integer attempts,
-                                @RequestParam(required = false, defaultValue = "false") boolean allowZero,
-                                Authentication auth) {
-        Long childId = Long.valueOf(auth.getName());
-
-//        if (score != null && score == 0 && !allowZero) {
-//            throw new IllegalArgumentException("Finishing with zero is not allowed without confirmation");
-//        }
-
+                                @RequestParam(required = false, defaultValue = "false") boolean allowZero) {
+        Long childId = AuthenticationHolder.getUserId();
         return finishHandler.handle(new FinishTaskCommand(taskResultId, score, attempts, allowZero, childId));
     }
 
