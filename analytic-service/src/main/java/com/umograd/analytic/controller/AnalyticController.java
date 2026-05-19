@@ -2,7 +2,9 @@ package com.umograd.analytic.controller;
 
 import com.umograd.analytic.dto.ChildProgressPoint;
 import com.umograd.analytic.dto.DifficultyRecommendation;
+import com.umograd.analytic.dto.ParentAgeLimitResponse;
 import com.umograd.analytic.dto.TaskAnalyticsResponse;
+import com.umograd.analytic.repository.analytic.ParentAgeLimitRepository;
 import com.umograd.analytic.service.AnalyticService;
 import com.umograd.analytic.service.ReportService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,8 @@ public class AnalyticController {
 
     private final ReportService reportService;
 
+    private final ParentAgeLimitRepository limitRepository;
+
     @GetMapping("/tasks")
     public List<TaskAnalyticsResponse> getTaskStats() {
         return analyticsService.getTaskStats();
@@ -35,6 +39,31 @@ public class AnalyticController {
     @GetMapping("/recommendation/{childId}")
     public DifficultyRecommendation getRecommendation(@PathVariable Long childId) {
         return analyticsService.getRecommendation(childId);
+    }
+
+    @PostMapping("/recommend-multiple")
+    public void recommendTask(@RequestParam Long childId, @RequestBody List<Long> taskIds) {
+        analyticsService.recommendMultiple(childId, taskIds);
+    }
+
+    @DeleteMapping("/recommend")
+    public void removeRecommendation(@RequestParam Long childId) {
+        analyticsService.deleteRecommendation(childId);
+    }
+
+    @GetMapping("/active-recs/{childId}")
+    public List<Long> getActiveRecommendations(@PathVariable Long childId) {
+        return analyticsService.getActiveTasksId(childId);
+    }
+
+    @GetMapping
+    public List<ParentAgeLimitResponse> getLimits() {
+        return analyticsService.getLimits();
+    }
+
+    @PostMapping
+    public void saveLimit(@RequestParam int age, @RequestParam int maxMinutes) {
+        analyticsService.saveLimit(age, maxMinutes);
     }
 
     @PostMapping("/report/aggregate")

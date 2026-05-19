@@ -19,7 +19,8 @@ public class UserMapper {
         return new ChildResponse(
                 user.getId(),
                 user.getUsername(),
-                user.getEmail()
+                user.getEmail(),
+                user.isParentConsent()
         );
     }
 }

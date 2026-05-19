@@ -2,9 +2,13 @@ spring:
   application:
     name: analytic-service
   datasource:
-    url: jdbc:mysql://localhost:3306/analytic_db?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/analytic_db?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci
     username: root
     password: root
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
   jpa:
     properties:
       hibernate:
@@ -25,9 +29,6 @@ server:
   port: 8182
   error:
     include-message: always
-
-#upload:
-#  path: D:/Университет/Диплом/umograd-backend/content-service/src/main/resources/img/
 
 jwt:
   secret: mysupersecretkeymysupersecretkey

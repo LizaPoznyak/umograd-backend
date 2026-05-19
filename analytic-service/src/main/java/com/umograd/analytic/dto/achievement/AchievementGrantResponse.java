@@ -1,4 +1,4 @@
-package com.umograd.analytic.dto;
+package com.umograd.analytic.dto.achievement;
 
 public record AchievementGrantResponse(
         String name,

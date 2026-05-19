@@ -3,5 +3,6 @@ package com.umograd.presentation.parent.dto;
 public record ChildResponse(
         Long id,
         String username,
-        String email
+        String email,
+        boolean parentConsent
 ) {}

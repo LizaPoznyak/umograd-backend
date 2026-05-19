@@ -2,13 +2,16 @@ create schema if not exists umograd;
 create schema if not exists content_db;
 create schema if not exists analytic_db;
 
-create table if not exists analytic_db.system_logs (
-                                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                         user_id BIGINT NOT NULL,
-                                         username VARCHAR(255) NOT NULL,
-                                         event_type VARCHAR(100) NOT NULL,
-                                         description TEXT,
-                                         created_at DATETIME(6) NOT NULL
+create table if not exists analytic_db.system_logs
+(
+    id          bigint auto_increment
+        primary key,
+    user_id     bigint       not null,
+    username    varchar(255) not null,
+    event_type  varchar(100) not null,
+    endpoint    varchar(255) null,
+    description text         null,
+    created_at  datetime(6)  not null
 );
 
 create table if not exists analytic_db.achievements
@@ -46,6 +49,23 @@ create table if not exists content_db.flyway_schema_history
     installed_on   timestamp default CURRENT_TIMESTAMP not null,
     execution_time int                                 not null,
     success        tinyint(1)                          not null
+);
+
+CREATE TABLE IF NOT EXISTS analytic_db.parent_recommendations (
+                                                                  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                                                  parent_id BIGINT NOT NULL,
+                                                                  child_id BIGINT NOT NULL,
+                                                                  task_id BIGINT NOT NULL,
+                                                                  assigned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                                                  is_completed TINYINT(1) DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS analytic_db.parent_age_limits (
+                                                             id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                                             parent_id BIGINT NOT NULL,
+                                                             age INT NOT NULL,
+                                                             max_minutes INT NOT NULL,
+                                                             UNIQUE KEY uk_parent_age (parent_id, age)
 );
 
 create table if not exists umograd.flyway_schema_history

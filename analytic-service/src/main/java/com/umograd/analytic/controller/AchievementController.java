@@ -1,7 +1,7 @@
 package com.umograd.analytic.controller;
 
-import com.umograd.analytic.dto.AchievementGrantResponse;
-import com.umograd.analytic.dto.AchievementResponse;
+import com.umograd.analytic.dto.achievement.AchievementGrantResponse;
+import com.umograd.analytic.dto.achievement.AchievementResponse;
 import com.umograd.analytic.service.AchievementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

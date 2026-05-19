@@ -4,15 +4,13 @@ import com.umograd.application.user.command.CreateChildCommand;
 import com.umograd.application.user.command.CreateChildCommandHandler;
 import com.umograd.application.user.command.DeleteChildCommand;
 import com.umograd.application.user.command.DeleteChildCommandHandler;
-import com.umograd.application.user.query.FindUserByUsernameQuery;
-import com.umograd.application.user.query.FindUserByUsernameQueryHandler;
-import com.umograd.application.user.query.GetChildrenQuery;
-import com.umograd.application.user.query.GetChildrenQueryHandler;
+import com.umograd.application.user.query.*;
 import com.umograd.domain.user.User;
 import com.umograd.presentation.common.mapper.UserMapper;
 import com.umograd.presentation.parent.dto.ChildResponse;
 import com.umograd.presentation.parent.dto.CreateChildRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +26,7 @@ public class ParentChildController {
     private final GetChildrenQueryHandler getChildrenQueryHandler;
     private final DeleteChildCommandHandler deleteChildCommandHandler;
     private final FindUserByUsernameQueryHandler findUserByUsernameQueryHandler;
+    private final ToggleConsentQueryHandler findChildQueryHandler;
 
     @PostMapping
     public ChildResponse createChild(@AuthenticationPrincipal UserDetails parentDetails,
@@ -51,5 +50,11 @@ public class ParentChildController {
                             @PathVariable Long childId) {
         User parent = findUserByUsernameQueryHandler.handle(new FindUserByUsernameQuery(parentDetails.getUsername()));
         deleteChildCommandHandler.handle(new DeleteChildCommand(parent.getId(), childId));
+    }
+
+    @PutMapping("/{childId}/consent")
+    @PreAuthorize("hasRole('PARENT')")
+    public void toggleConsent(@PathVariable Long childId, @RequestParam boolean consent) {
+        findChildQueryHandler.toggleConsent(childId, consent);
     }
 }

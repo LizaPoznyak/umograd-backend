@@ -1,7 +1,7 @@
 package com.umograd.analytic.mapper;
 
-import com.umograd.analytic.dto.AchievementGrantResponse;
-import com.umograd.analytic.dto.AchievementResponse;
+import com.umograd.analytic.dto.achievement.AchievementGrantResponse;
+import com.umograd.analytic.dto.achievement.AchievementResponse;
 import com.umograd.analytic.entity.AchievementEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
