@@ -1,15 +1,13 @@
 package com.umograd.analytic.service.impl;
 
 import com.umograd.analytic.dto.DifficultyRecommendation;
-import com.umograd.analytic.dto.ParentAgeLimitResponse;
 import com.umograd.analytic.dto.TaskAnalyticsResponse;
-import com.umograd.analytic.entity.ParentAgeLimitEntity;
+import com.umograd.analytic.entity.ParentDifficultySettingEntity;
 import com.umograd.analytic.entity.ParentRecommendationEntity;
 import com.umograd.analytic.entity.task.TaskJpaEntity;
 import com.umograd.analytic.entity.task.TaskResultEntity;
 import com.umograd.analytic.mapper.AnalyticsMapper;
-import com.umograd.analytic.mapper.LimitMapper;
-import com.umograd.analytic.repository.analytic.ParentAgeLimitRepository;
+import com.umograd.analytic.repository.analytic.ParentDifficultySettingRepository;
 import com.umograd.analytic.repository.analytic.ParentRecommendationRepository;
 import com.umograd.analytic.repository.task.TaskRepository;
 import com.umograd.analytic.repository.task.TaskResultRepository;
@@ -19,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,11 +31,9 @@ public class DefaultAnalyticService implements AnalyticService {
 
     private final ParentRecommendationRepository parentRecommendationRepository;
 
-    private final ParentAgeLimitRepository limitRepository;
+    private final ParentDifficultySettingRepository difficultySettingRepository;
 
     private final AnalyticsMapper analyticsMapper;
-
-    private final LimitMapper limitMapper;
 
     @Override
     public List<TaskAnalyticsResponse> getTaskStats() {
@@ -51,25 +46,33 @@ public class DefaultAnalyticService implements AnalyticService {
     @Transactional(readOnly = true)
     public DifficultyRecommendation getRecommendation(Long childId) {
         List<Long> parentAssignedTaskIds = parentRecommendationRepository.findActiveTaskIdsByChildId(childId);
+        Optional<ParentDifficultySettingEntity> parentDiffOpt = difficultySettingRepository.findByChildId(childId);
 
-        String parentText = null;
+        if (parentDiffOpt.isPresent()) {
+            String chosenDiff = parentDiffOpt.get().getSelectedDifficulty();
+            String msg = parentAssignedTaskIds.isEmpty()
+                    ? "Родитель ограничил траекторию обучения уровнем сложности: " + chosenDiff + "."
+                    : "Родитель зафиксировал для вас задания уровня сложности: " + chosenDiff + ".";
+
+            return new DifficultyRecommendation(chosenDiff, msg, parentAssignedTaskIds, true);
+        }
+
         if (!parentAssignedTaskIds.isEmpty()) {
             List<TaskJpaEntity> assignedTasks = taskRepository.findAllById(parentAssignedTaskIds);
-            String taskTitles = assignedTasks.stream()
-                    .map(TaskJpaEntity::getTitle)
-                    .collect(Collectors.joining("\", \""));
-            parentText = "Родитель зафиксировал для вас приоритетные задания: \"" + taskTitles + "\".";
+            String taskTitles = assignedTasks.stream().map(TaskJpaEntity::getTitle).collect(Collectors.joining("\", \""));
+            String assignedDiff = assignedTasks.isEmpty() ? "EASY" : assignedTasks.get(0).getDifficulty().toString();
+            return new DifficultyRecommendation(assignedDiff, "Родитель зафиксировал для вас приоритетные задания: \"" + taskTitles + "\".", parentAssignedTaskIds, false);
         }
 
         List<TaskResultEntity> lastResults = taskResultRepository.findLastFinishedResults(childId);
         if (lastResults.isEmpty()) {
-            return new DifficultyRecommendation("EASY", parentText != null ? parentText : "Начните с простого уровня заданий.", parentAssignedTaskIds);
+            return new DifficultyRecommendation("EASY", "Начните с простого уровня заданий.", parentAssignedTaskIds, false);
         }
 
         double totalSeconds = 0;
         double totalScore = 0;
         for (TaskResultEntity res : lastResults) {
-            long seconds = Duration.between(res.getStartedAt(), res.getFinishedAt()).toSeconds();
+            long seconds = java.time.Duration.between(res.getStartedAt(), res.getFinishedAt()).toSeconds();
             totalSeconds += seconds;
             totalScore += (res.getScore() != null ? res.getScore() : 0);
         }
@@ -94,13 +97,8 @@ public class DefaultAnalyticService implements AnalyticService {
             aiText = "Задания вызывают трудности. Рекомендуем повторить материал или снизить уровень сложности.";
         }
 
-        return new DifficultyRecommendation(
-                calculatedDiff,
-                parentText != null ? parentText : aiText,
-                parentAssignedTaskIds
-        );
+        return new DifficultyRecommendation(calculatedDiff, aiText, parentAssignedTaskIds, false);
     }
-
 
     @Override
     @Transactional
@@ -142,18 +140,25 @@ public class DefaultAnalyticService implements AnalyticService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ParentAgeLimitResponse> getLimits() {
-        Long parentId = AuthenticationHolder.getUserId();
-        return limitMapper.toListDto(limitRepository.findAllByParentId(parentId));
+    public String getSelectedDiff(Long childId) {
+        return difficultySettingRepository.findByChildId(childId)
+                .map(ParentDifficultySettingEntity::getSelectedDifficulty)
+                .orElse("NONE");
     }
 
     @Override
     @Transactional
-    public void saveLimit(int age, int maxMinutes) {
+    public void saveSelectedDiff(Long childId, String diff) {
         Long parentId = AuthenticationHolder.getUserId();
-        ParentAgeLimitEntity limit = limitRepository.findByParentIdAndAge(parentId, age)
-                .orElse(new ParentAgeLimitEntity(null, parentId, age, maxMinutes));
-        limit.setMaxMinutes(maxMinutes);
-        limitRepository.save(limit);
+        if ("NONE".equals(diff)) {
+            difficultySettingRepository.findByParentIdAndChildId(parentId, childId)
+                    .ifPresent(difficultySettingRepository::delete);
+        } else {
+            ParentDifficultySettingEntity setting = difficultySettingRepository
+                    .findByParentIdAndChildId(parentId, childId)
+                    .orElse(new ParentDifficultySettingEntity(null, parentId, childId, diff));
+            setting.setSelectedDifficulty(diff);
+            difficultySettingRepository.save(setting);
+        }
     }
 }

@@ -22,6 +22,9 @@ public class UserEntity {
     @Column(name = "birth_date")
     private LocalDate birthDate;
 
+    @Column(name = "parent_id")
+    private Long parentId;
+
     @Column(name = "parent_consent")
     private boolean parentConsent;
 

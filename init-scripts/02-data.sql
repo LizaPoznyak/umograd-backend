@@ -9,6 +9,15 @@ INSERT INTO analytic_db.achievements (id, name, description, icon_url, condition
 
 INSERT INTO analytic_db.child_achievements (child_id, achievement_id, earned_at) VALUES (4, 1, '2026-05-13 00:48:45');
 
+INSERT INTO analytic_db.parent_age_limits (id, parent_id, age, max_minutes) VALUES (1, 2, 5, 15);
+INSERT INTO analytic_db.parent_age_limits (id, parent_id, age, max_minutes) VALUES (6, 2, 8, 20);
+INSERT INTO analytic_db.parent_age_limits (id, parent_id, age, max_minutes) VALUES (8, 2, 10, 30);
+INSERT INTO analytic_db.parent_age_limits (id, parent_id, age, max_minutes) VALUES (9, 2, 12, 30);
+INSERT INTO analytic_db.parent_age_limits (id, parent_id, age, max_minutes) VALUES (10, 2, 14, 45);
+INSERT INTO analytic_db.parent_age_limits (id, parent_id, age, max_minutes) VALUES (11, 2, 16, 45);
+INSERT INTO analytic_db.parent_age_limits (id, parent_id, age, max_minutes) VALUES (12, 2, 18, 60);
+
+
 INSERT INTO content_db.tasks (created_at, created_by, description, difficulty, max_age, min_age, title, updated_at, source_id) VALUES ('2025-09-24 17:45:16.419907', 'mod', 'Викторина', 'MEDIUM', 13, 10, 'Алгебра', '2026-05-10 19:35:45.725151', 'opentdb-Science: Mathematics');
 INSERT INTO content_db.tasks (created_at, created_by, description, difficulty, max_age, min_age, title, updated_at, source_id) VALUES ('2025-09-25 15:47:27.683953', '1', 'Викторина', 'EASY', 13, 10, 'Математика', null, 'opentdb-Science: Mathematics');
 INSERT INTO content_db.tasks (created_at, created_by, description, difficulty, max_age, min_age, title, updated_at, source_id) VALUES ('2025-09-25 15:51:33.925485', '1', 'Викторина', 'EASY', 7, 6, 'Анатомия', null, null);

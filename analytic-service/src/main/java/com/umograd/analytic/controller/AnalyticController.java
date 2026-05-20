@@ -1,10 +1,6 @@
 package com.umograd.analytic.controller;
 
-import com.umograd.analytic.dto.ChildProgressPoint;
-import com.umograd.analytic.dto.DifficultyRecommendation;
-import com.umograd.analytic.dto.ParentAgeLimitResponse;
-import com.umograd.analytic.dto.TaskAnalyticsResponse;
-import com.umograd.analytic.repository.analytic.ParentAgeLimitRepository;
+import com.umograd.analytic.dto.*;
 import com.umograd.analytic.service.AnalyticService;
 import com.umograd.analytic.service.ReportService;
 import lombok.RequiredArgsConstructor;
@@ -15,15 +11,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/analytics")
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/analytics")
 public class AnalyticController {
 
     private final AnalyticService analyticsService;
 
     private final ReportService reportService;
-
-    private final ParentAgeLimitRepository limitRepository;
 
     @GetMapping("/tasks")
     public List<TaskAnalyticsResponse> getTaskStats() {
@@ -56,16 +50,6 @@ public class AnalyticController {
         return analyticsService.getActiveTasksId(childId);
     }
 
-    @GetMapping
-    public List<ParentAgeLimitResponse> getLimits() {
-        return analyticsService.getLimits();
-    }
-
-    @PostMapping
-    public void saveLimit(@RequestParam int age, @RequestParam int maxMinutes) {
-        analyticsService.saveLimit(age, maxMinutes);
-    }
-
     @PostMapping("/report/aggregate")
     public Map<Long, List<ChildProgressPoint>> getAggregateReport(@RequestBody List<Long> childIds) {
         return childIds.stream()
@@ -73,5 +57,15 @@ public class AnalyticController {
                         id -> id,
                         id -> reportService.getChildReport(id, "month")
                 ));
+    }
+
+    @GetMapping("/parent/selected-difficulty/{childId}")
+    public String getSelectedDifficulty(@PathVariable Long childId) {
+        return analyticsService.getSelectedDiff(childId);
+    }
+
+    @PostMapping("/parent/selected-difficulty")
+    public void saveSelectedDifficulty(@RequestParam Long childId, @RequestParam String difficulty) {
+        analyticsService.saveSelectedDiff(childId, difficulty);
     }
 }

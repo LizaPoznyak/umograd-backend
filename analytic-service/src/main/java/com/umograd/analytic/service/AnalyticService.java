@@ -1,7 +1,6 @@
 package com.umograd.analytic.service;
 
 import com.umograd.analytic.dto.DifficultyRecommendation;
-import com.umograd.analytic.dto.ParentAgeLimitResponse;
 import com.umograd.analytic.dto.TaskAnalyticsResponse;
 
 import java.util.List;
@@ -18,7 +17,7 @@ public interface AnalyticService {
 
     List<Long> getActiveTasksId(Long childId);
 
-    List<ParentAgeLimitResponse> getLimits();
+    String getSelectedDiff(Long childId);
 
-    void saveLimit(int age, int maxMinutes);
+    void saveSelectedDiff(Long childId, String diff);
 }

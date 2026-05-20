@@ -1,6 +1,6 @@
-package com.umograd.analytic.repository.analytic;
+package com.umograd.analytic.repository.limit;
 
-import com.umograd.analytic.entity.ParentAgeLimitEntity;
+import com.umograd.analytic.entity.limit.ParentAgeLimitEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

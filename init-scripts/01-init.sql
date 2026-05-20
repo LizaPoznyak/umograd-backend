@@ -68,6 +68,22 @@ CREATE TABLE IF NOT EXISTS analytic_db.parent_age_limits (
                                                              UNIQUE KEY uk_parent_age (parent_id, age)
 );
 
+CREATE TABLE IF NOT EXISTS analytic_db.parent_child_custom_limits (
+                                                                      id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                                                      parent_id BIGINT NOT NULL,
+                                                                      child_id BIGINT NOT NULL,
+                                                                      custom_minutes INT NOT NULL,
+                                                                      UNIQUE KEY uk_parent_child (parent_id, child_id)
+);
+
+CREATE TABLE IF NOT EXISTS analytic_db.parent_difficulty_settings (
+                                                                      id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                                                      parent_id BIGINT NOT NULL,
+                                                                      child_id BIGINT NOT NULL,
+                                                                      selected_difficulty VARCHAR(20) NOT NULL,
+                                                                      UNIQUE KEY uk_parent_child_diff (parent_id, child_id)
+);
+
 create table if not exists umograd.flyway_schema_history
 (
     installed_rank int                                 not null

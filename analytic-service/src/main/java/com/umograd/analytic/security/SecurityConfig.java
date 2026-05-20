@@ -29,6 +29,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "api/v1/analytics/limit/parent/check-limit").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

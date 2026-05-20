@@ -5,10 +5,12 @@ import java.util.List;
 public record DifficultyRecommendation(
         String recommendedDifficulty,
         String message,
-        List<Long> parentTaskIds
+        List<Long> parentTaskIds,
+        boolean isParentDiff
 ) {
-    public DifficultyRecommendation(String difficulty, String text) {
-        this(difficulty, text, java.util.Collections.emptyList());
+
+    public DifficultyRecommendation(String difficulty, String text, List<Long> parentTaskIds) {
+        this(difficulty, text, parentTaskIds, false);
     }
 }
 

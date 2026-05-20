@@ -8,8 +8,9 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "parent_age_limits", catalog = "analytic_db")
-public class ParentAgeLimitEntity {
+@Table(name = "parent_difficulty_settings", catalog = "analytic_db")
+public class ParentDifficultySettingEntity {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,10 +18,9 @@ public class ParentAgeLimitEntity {
     @Column(name = "parent_id", nullable = false)
     private Long parentId;
 
-    @Column(name = "age", nullable = false)
-    private int age;
+    @Column(name = "child_id", nullable = false)
+    private Long childId;
 
-    @Column(name = "max_minutes", nullable = false)
-    private int maxMinutes;
+    @Column(name = "selected_difficulty", nullable = false)
+    private String selectedDifficulty;
 }
-
