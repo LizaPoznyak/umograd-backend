@@ -59,7 +59,7 @@ services:
       target: content-app
     container_name: umograd-content-app
     ports:
-      - "8081:8181"
+      - "8181:8181"
     depends_on:
       db:
         condition: service_healthy
